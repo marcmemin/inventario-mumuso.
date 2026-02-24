@@ -207,26 +207,50 @@
         if (actual + valor >= 1) input.value = actual + valor;
     }
 
-    function alternarCamara() {
-        const div = document.getElementById('reader');
-        if (div.style.display === 'none' || !div.style.display) {
-            div.style.display = 'block';
-            html5QrCode = new Html5Qrcode("reader");
-            const width = window.innerWidth * 0.8; 
-            html5QrCode.start(
-                { facingMode: "environment" }, 
-                { fps: 25, qrbox: { width: width, height: 150 } },
-                (text) => {
-                    document.getElementById('lector').value = text;
-                    buscar();
-                    cerrarCamara();
-                    if (navigator.vibrate) navigator.vibrate(100);
+function alternarCamara() {
+    const div = document.getElementById('reader');
+    if (div.style.display === 'none' || !div.style.display) {
+        div.style.display = 'block';
+        
+        // Configuramos la librería para que sea agresiva con los códigos de barras
+        html5QrCode = new Html5Qrcode("reader", { 
+            verbose: false,
+            formatsToSupport: [ 
+                Html5QrcodeSupportedFormats.EAN_13, 
+                Html5QrcodeSupportedFormats.EAN_8, 
+                Html5QrcodeSupportedFormats.CODE_128 
+            ] 
+        });
+
+        const width = window.innerWidth * 0.85; 
+        
+        html5QrCode.start(
+            { facingMode: "environment" }, 
+            { 
+                fps: 30,             // Más cuadros por segundo para iPhone
+                qrbox: { width: width, height: 180 }, // Caja más alargada para barras
+                aspectRatio: 1.0,
+                videoConstraints: {
+                    focusMode: "continuous",
+                    whiteBalanceMode: "continuous",
+                    width: { min: 640, ideal: 1280, max: 1920 }, // Forzamos HD
+                    height: { min: 480, ideal: 720, max: 1080 }
                 }
-            ).catch(err => alert("Error cámara: " + err));
-        } else {
-            cerrarCamara();
-        }
+            },
+            (text) => {
+                document.getElementById('lector').value = text;
+                buscar();
+                cerrarCamara();
+                if (navigator.vibrate) navigator.vibrate(100);
+            }
+        ).catch(err => {
+            console.error(err);
+            alert("Error: Asegúrate de dar permiso a la cámara.");
+        });
+    } else {
+        cerrarCamara();
     }
+}
 
     function cerrarCamara() {
         if(html5QrCode) {
