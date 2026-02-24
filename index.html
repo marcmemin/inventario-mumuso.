@@ -6,81 +6,26 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
   <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
-    :root {
-      --bg-color: #121212;
-      --card-bg: #1e1e1e;
-      --accent-color: #03a9f4;
-      --header-bg: #1a3a3a;
-    }
-
-    body { 
-      background-color: var(--bg-color); 
-      color: #ffffff; 
-      font-family: 'Segoe UI', Roboto, sans-serif;
-      margin: 0; padding: 0;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    #bloqueo {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: var(--bg-color); z-index: 9999;
-      display: flex; align-items: center; justify-content: center; text-align: center;
-      padding: 30px;
-    }
-
-    .header {
-      background-color: var(--header-bg);
-      padding: 12px 15px;
-      display: flex;
-      align-items: center;
-      font-size: 1.1rem;
-      font-weight: 500;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.4);
-    }
-
+    :root { --bg-color: #121212; --card-bg: #1e1e1e; --accent-color: #03a9f4; --header-bg: #1a3a3a; }
+    body { background-color: var(--bg-color); color: #ffffff; font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; }
+    #bloqueo { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); z-index: 9999; display: flex; align-items: center; justify-content: center; text-align: center; padding: 30px; }
+    .header { background-color: var(--header-bg); padding: 12px 15px; display: flex; align-items: center; font-size: 1.1rem; font-weight: 500; box-shadow: 0 2px 5px rgba(0,0,0,0.4); }
     .header-icon { margin-right: 15px; font-size: 1.3rem; }
     .content { flex: 1; padding: 20px; overflow-y: auto; display:none; }
-
     label { color: #ffffff; font-size: 0.9rem; margin-bottom: 5px; font-weight: 500; }
-    label span { color: #f44336; margin-left: 3px; }
-
     .form-group { margin-bottom: 20px; position: relative; }
-
-    .custom-input {
-      background-color: transparent !important;
-      border: 1px solid #444 !important;
-      color: #ffffff !important;
-      height: 45px;
-      border-radius: 4px;
-    }
-
-    .inner-scanner {
-      position: absolute; right: 10px; top: 35px;
-      background: none; border: none; color: #888; font-size: 1.2rem; z-index: 5;
-    }
-
+    .custom-input { background-color: transparent !important; border: 1px solid #444 !important; color: #ffffff !important; height: 45px; border-radius: 4px; }
+    .inner-scanner { position: absolute; right: 10px; top: 35px; background: none; border: none; color: #888; font-size: 1.2rem; z-index: 5; }
     .qty-group { display: flex; align-items: center; border: 1px solid #444; border-radius: 4px; overflow: hidden; }
     .qty-btn { background: transparent; border: none; color: #ffffff; width: 50px; height: 45px; font-size: 1.5rem; }
     #cantidad { border: none !important; text-align: center; font-size: 1.1rem; }
-
     .app-footer { border-top: 1px solid #333; display: none; padding: 5px 15px; background-color: var(--bg-color); }
     .footer-btn { flex: 1; background: none; border: none; padding: 12px; font-weight: bold; text-transform: uppercase; font-size: 0.9rem; }
     .btn-save { color: var(--accent-color); }
     .btn-save:disabled { color: #444; }
-
-    #reader { width: 100%; border-radius: 8px; margin-bottom: 15px; display: none; }
+    #reader { width: 100%; border-radius: 8px; margin-bottom: 15px; display: none; overflow: hidden; background: #000; }
     #toast { display: none; position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #323232; color: white; padding: 10px 20px; border-radius: 4px; z-index: 1000; }
-
-    #reader video { object-fit: cover !important; border-radius: 8px; }
-    #reader__dashboard { display: none !important; }
-    #reader__scan_region { background: #000; }
-    #reader__scan_region::after {
-      content: ""; position: absolute; top: 50%; left: 10%; width: 80%; height: 2px;
-      background: rgba(255, 0, 0, 0.6); box-shadow: 0 0 8px rgba(255, 0, 0, 0.8);
-      z-index: 10; pointer-events: none;
-    }
+    #reader video { object-fit: cover !important; }
   </style>
 </head>
 <body>
@@ -88,18 +33,16 @@
   <div id="bloqueo">
     <div id="formRegistro" style="display:none;">
       <h3>📝 Registro Inicial</h3>
-      <p>Ingresa tu nombre y local para empezar.</p>
       <input type="text" id="regNombre" class="form-control custom-input mb-3" placeholder="Ej: JUAN - BOLIVAR">
       <button class="btn btn-primary btn-block" onclick="solicitarAcceso()">REGISTRAR DISPOSITIVO</button>
     </div>
     <div id="msgEspera" style="display:none;">
-      <h2 id="iconEspera">⏳</h2>
-      <h3 id="tituloEspera">Acceso Pendiente</h3>
-      <p id="cuerpoEspera">Tu dispositivo está registrado. Pide al administrador que te dé permiso en el Excel.</p>
+      <h3>⏳ Acceso Pendiente</h3>
+      <p>Pide permiso al administrador en el Excel.</p>
     </div>
   </div>
 
-  <div id="toast">✅ Registro guardado</div>
+  <div id="toast">✅ Guardado</div>
 
   <div class="header">
     <span class="header-icon">📦</span>
@@ -108,54 +51,46 @@
 
   <div class="content" id="mainContent">
     <div id="reader"></div>
-
-    <div id="alertaHistorial" style="display:none; background: #3e2723; color: #ffccbc; padding: 12px; border-radius: 8px; margin-bottom: 15px; border-left: 5px solid #ff5722; font-size: 0.9rem;">
-      ⚠️ Ya registraste <span id="cantAnterior" style="font-weight: bold; font-size: 1.2rem; color: #fff;">0</span> unidades de este producto.
+    <div id="alertaHistorial" style="display:none; background: #3e2723; color: #ffccbc; padding: 12px; border-radius: 8px; margin-bottom: 15px; border-left: 5px solid #ff5722;">
+      ⚠️ Ya contaste <span id="cantAnterior">0</span> unidades.
     </div>
 
     <div class="form-group">
-      <label>Código<span>*</span></label>
-      <input type="text" id="lector" class="form-control custom-input" placeholder="Escanear o escribir...">
+      <label>Código</label>
+      <input type="text" id="lector" class="form-control custom-input" placeholder="Escaneando...">
       <button class="inner-scanner" onclick="alternarCamara()">🔳</button>
     </div>
     <div class="form-group">
       <label>Descripción</label>
-      <input type="text" id="descripcion" class="form-control custom-input" readonly style="opacity: 0.6; border-style: dashed !important;">
+      <input type="text" id="descripcion" class="form-control custom-input" readonly>
     </div>
     <div class="form-group">
-      <label>Cantidad Contada<span>*</span></label>
+      <label>Cantidad</label>
       <div class="qty-group">
         <button class="qty-btn" onclick="cambiarCant(-1)">−</button>
-        <input type="number" id="cantidad" class="form-control custom-input" value="1" inputmode="numeric">
+        <input type="number" id="cantidad" class="form-control custom-input" value="1">
         <button class="qty-btn" onclick="cambiarCant(1)">+</button>
       </div>
     </div>
   </div>
 
   <div class="app-footer" id="mainFooter">
-    <button class="footer-btn btn-cancel" onclick="limpiar()">Cancel</button>
+    <button class="footer-btn" onclick="limpiar()">Cancel</button>
     <button class="footer-btn btn-save" id="btnSave" onclick="guardar()" disabled>Save</button>
   </div>
 
   <script>
-    // URL DE TU SCRIPT DE GOOGLE
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzwuovwlUljBR2IjEAKqoGpzGivkxTCqJK9LdiC-w3qX2KdkOuwNO-eU9mr4L3tzxAt/exec";
-
     let BD = {};
     let html5QrCode;
     let USUARIO_NOMBRE = "";
-    let CACHE_CONTEOS = {};
 
-    // Función puente para simular google.script.run
     async function ejecutarScript(parametros) {
         const query = new URLSearchParams(parametros).toString();
         try {
             const response = await fetch(`${SCRIPT_URL}?${query}`);
             return await response.json();
-        } catch (e) {
-            console.error("Error en comunicación:", e);
-            return null;
-        }
+        } catch (e) { return null; }
     }
 
     window.onload = () => { validarDispositivo(); };
@@ -163,10 +98,8 @@
     async function validarDispositivo() {
         let uuid = localStorage.getItem('inv_uuid');
         if (!uuid) {
-            const fingerprint = window.navigator.userAgent.length.toString(16) + window.screen.height.toString(16);
-            uuid = 'N-ID-' + fingerprint.toUpperCase();
+            uuid = 'N-ID-' + (navigator.userAgent.length + screen.height).toString(16).toUpperCase();
         }
-
         const res = await ejecutarScript({ accion: "verificarAcceso", uuid: uuid });
         if (res && res.status === "AUTORIZADO") {
             localStorage.setItem('inv_uuid', uuid);
@@ -177,107 +110,63 @@
             document.getElementById('mainFooter').style.display = 'flex';
             cargarBaseDatos();
         } else if (res && res.status === "PENDIENTE") {
-            localStorage.setItem('inv_uuid', uuid);
-            document.getElementById('bloqueo').style.display = 'flex';
             document.getElementById('formRegistro').style.display = 'none';
             document.getElementById('msgEspera').style.display = 'block';
         } else {
-            document.getElementById('bloqueo').style.display = 'flex';
             document.getElementById('formRegistro').style.display = 'block';
         }
     }
 
     async function solicitarAcceso() {
         const nombre = document.getElementById('regNombre').value.trim();
-        if (!nombre) return alert("Escribe tu nombre y local");
-        const uuid = 'N-ID-' + (window.navigator.userAgent.length + window.screen.height).toString(16).toUpperCase();
-        
+        if (!nombre) return alert("Ingresa tu nombre");
+        const uuid = 'N-ID-' + (navigator.userAgent.length + screen.height).toString(16).toUpperCase();
         await ejecutarScript({ accion: "registrarDispositivo", uuid: uuid, nombre: nombre });
         localStorage.setItem('inv_uuid', uuid);
         location.reload();
     }
 
-    async function cargarBaseDatos() {
-        BD = await ejecutarScript({ accion: "obtenerBD" }) || {};
+    async function cargarBaseDatos() { BD = await ejecutarScript({ accion: "obtenerBD" }) || {}; }
+
+    function cambiarCant(v) {
+        let i = document.getElementById('cantidad');
+        let n = parseInt(i.value) + v;
+        if (n >= 1) i.value = n;
     }
 
-    function cambiarCant(valor) {
-        const input = document.getElementById('cantidad');
-        let actual = parseInt(input.value) || 0;
-        if (actual + valor >= 1) input.value = actual + valor;
-    }
+    async function alternarCamara() {
+        const div = document.getElementById('reader');
+        if (div.style.display === 'block') { cerrarCamara(); return; }
 
-async function alternarCamara() {
-    const div = document.getElementById('reader');
-    
-    // Si la cámara ya está abierta, la cerramos
-    if (div.style.display === 'block') {
-        cerrarCamara();
-        return;
-    }
+        div.style.display = 'block';
+        if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
 
-    div.style.display = 'block';
-    
-    // 1. Obtener todas las cámaras disponibles
-    try {
-        const devices = await Html5Qrcode.getCameras();
-        if (!devices || devices.length === 0) {
-            alert("No se encontraron cámaras.");
-            return;
-        }
+        // CONFIGURACIÓN PARA IPHONE (Priorizar cámara trasera)
+        const config = { fps: 20, qrbox: { width: 250, height: 150 }, aspectRatio: 1.0 };
 
-        // 2. Buscar una cámara que diga "back" o "trasera" o simplemente la última de la lista
-        let backCamera = devices.find(device => 
-            device.label.toLowerCase().includes('back') || 
-            device.label.toLowerCase().includes('trasera') ||
-            device.label.toLowerCase().includes('environment')
-        );
-
-        // Si no encuentra una con ese nombre, usamos la última (usualmente es la principal trasera)
-        const cameraId = backCamera ? backCamera.id : devices[devices.length - 1].id;
-
-        html5QrCode = new Html5Qrcode("reader");
-        const width = window.innerWidth * 0.85;
-
-        await html5QrCode.start(
-            cameraId, // Usamos el ID específico de la cámara trasera
-            {
-                fps: 30,
-                qrbox: { width: width, height: 180 },
-                aspectRatio: 1.0,
-                videoConstraints: {
-                    focusMode: "continuous",
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 }
-                }
-            },
-            (text) => {
-                document.getElementById('lector').value = text;
-                buscar();
-                cerrarCamara();
-                if (navigator.vibrate) navigator.vibrate(100);
-            }
-        );
-    } catch (err) {
-        console.error(err);
-        // Si falla el método por ID, intentamos el método estándar como último recurso
         try {
-            await html5QrCode.start({ facingMode: "environment" }, { fps: 20, qrbox: { width: 250, height: 150 } }, (text) => {
-                document.getElementById('lector').value = text;
-                buscar();
-                cerrarCamara();
-            });
+            // Intento 1: Modo estándar "environment" (Cámara trasera)
+            await html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess);
         } catch (e) {
-            alert("Error al encender cámara trasera: " + e);
+            // Intento 2: Buscar IDs de cámaras si el modo estándar falla
+            const devices = await Html5Qrcode.getCameras();
+            if (devices && devices.length > 0) {
+                // Elegimos la ÚLTIMA cámara (en iPhone la última suele ser la trasera principal)
+                await html5QrCode.start(devices[devices.length - 1].id, config, onScanSuccess);
+            }
         }
     }
-}
+
+    function onScanSuccess(text) {
+        document.getElementById('lector').value = text;
+        buscar();
+        cerrarCamara();
+        if (navigator.vibrate) navigator.vibrate(100);
+    }
 
     function cerrarCamara() {
         if(html5QrCode) {
-            html5QrCode.stop().then(() => { 
-                document.getElementById('reader').style.display = 'none'; 
-            }).catch(e => console.log(e));
+            html5QrCode.stop().then(() => { document.getElementById('reader').style.display = 'none'; });
         }
     }
 
@@ -286,55 +175,43 @@ async function alternarCamara() {
     async function buscar() {
         const cod = document.getElementById('lector').value.trim();
         const descInput = document.getElementById('descripcion');
-        const alerta = document.getElementById('alertaHistorial');
         const btnSave = document.getElementById('btnSave');
+        if (!cod) return;
 
-        if (!cod) { limpiar(); return; }
-
-        const descLocal = BD[cod];
-        if (descLocal) {
-            descInput.value = descLocal;
-            descInput.style.color = "#ffffff";
+        if (BD[cod]) {
+            descInput.value = BD[cod];
             btnSave.disabled = false;
         } else {
-            descInput.value = "⚠️ CÓDIGO NO REGISTRADO";
-            descInput.style.color = "#ff5252";
+            descInput.value = "⚠️ NO ENCONTRADO";
             btnSave.disabled = true;
         }
 
-        // Consultar Historial al Servidor
         const res = await ejecutarScript({ accion: "obtenerInfo", codigo: cod });
         if (res && res.cantidadAnterior > 0) {
             document.getElementById('cantAnterior').innerText = res.cantidadAnterior;
-            alerta.style.display = "block";
+            document.getElementById('alertaHistorial').style.display = "block";
         } else {
-            alerta.style.display = "none";
+            document.getElementById('alertaHistorial').style.display = "none";
         }
     }
 
     async function guardar() {
-        const lector = document.getElementById('lector');
-        const cantInput = document.getElementById('cantidad');
-        const cod = lector.value.trim();
-        const cant = cantInput.value;
-        const desc = document.getElementById('descripcion').value;
-
-        if (!cod || cant <= 0) return;
-
+        const cod = document.getElementById('lector').value.trim();
+        const cant = document.getElementById('cantidad').value;
+        if (!cod) return;
         document.getElementById('btnSave').disabled = true;
-        document.getElementById('toast').innerText = "✔ Registrando " + cod;
-        document.getElementById('toast').style.display = 'block';
-
+        
         await ejecutarScript({
             accion: "guardar",
             codigo: cod,
-            descripcion: desc,
+            descripcion: document.getElementById('descripcion').value,
             cantidad: cant,
             usuario: USUARIO_NOMBRE
         });
-
+        
+        document.getElementById('toast').style.display = 'block';
+        setTimeout(() => { document.getElementById('toast').style.display = 'none'; }, 1000);
         limpiar();
-        setTimeout(() => { document.getElementById('toast').style.display = 'none'; }, 800);
     }
 
     function limpiar() {
