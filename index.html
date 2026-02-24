@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Scanner Inventario Mumuso</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body { font-family: sans-serif; background: #121212; color: white; text-align: center; margin: 0; padding: 20px; }
+        #reader { width: 100%; max-width: 400px; margin: 20px auto; border-radius: 15px; overflow: hidden; border: 2px solid #333; background: #1a1a1a; }
+        .controles { display: flex; flex-direction: column; gap: 15px; max-width: 400px; margin: auto; }
+        input { padding: 15px; border-radius: 8px; border: 1px solid #444; background: #1e1e1e; color: white; font-size: 1.1rem; }
+        button { padding: 18px; border-radius: 8px; border: none; background: #28a745; color: white; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
+        button:active { background: #218838; }
+        #status { margin-top: 15px; color: #00ff00; font-weight: bold; font-size: 1rem; }
+    </style>
+</head>
+<body>
+
+    <h2>📦 REGISTRO DE INVENTARIO</h2>
+    
+    <div id="reader"></div>
+
+    <div class="controles">
+        <input type="text" id="codigo" placeholder="Esperando escaneo..." readonly>
+        <input type="number" id="cantidad" value="1" min="1">
+        <input type="text" id="usuario" placeholder="Tu Nombre o Local">
+        <button onclick="enviarAlExcel()">💾 GUARDAR EN EXCEL</button>
+    </div>
+
+    <div id="status">Cámara lista</div>
+
+    <script>
+        // --- 1. CONFIGURACIÓN ---
+        // Pega aquí la URL que obtuviste al darle a "Implementar" en Apps Script
+        const URL_PUENTE = "https://script.google.com/macros/s/AKfycbzwuovwlUljBR2IjEAKqoGpzGivkxTCqJK9LdiC-w3qX2KdkOuwNO-eU9mr4L3tzxAt/exec";
+
+        const html5QrCode = new Html5Qrcode("reader");
+
+        // --- 2. INICIAR CÁMARA ---
+        html5QrCode.start(
+            { facingMode: "environment" }, // Usa la cámara trasera
+            { fps: 15, qrbox: { width: 250, height: 150 } },
+            (decodedText) => {
+                document.getElementById('codigo').value = decodedText;
+                document.getElementById('status').innerText = "✅ Código capturado: " + decodedText;
+                if (navigator.vibrate) navigator.vibrate(100); // Vibra al detectar
+            }
+        ).catch(err => {
+            document.getElementById('status').innerText = "❌ Error de cámara: " + err;
+        });
+
+        // --- 3. ENVIAR DATOS AL EXCEL ---
+        function enviarAlExcel() {
+            const cod = document.getElementById('codigo').value;
+            const cant = document.getElementById('cantidad').value;
+            const user = document.getElementById('usuario').value;
+
+            if (!cod || !user) {
+                alert("Por favor escanea un código y escribe tu nombre");
+                return;
+            }
+
+            document.getElementById('status').innerText = "⏳ Guardando...";
+
+            // Construimos la URL con los datos
+            const finalUrl = `${URL_PUENTE}?codigo=${cod}&cantidad=${cant}&usuario=${encodeURIComponent(user)}`;
+
+            // Enviamos el dato al "Puente" de Google
+            fetch(finalUrl, { mode: 'no-cors' }) 
+                .then(() => {
+                    document.getElementById('status').innerText = "✅ ¡REGISTRO EXITOSO!";
+                    document.getElementById('codigo').value = ""; // Limpiamos para el siguiente
+                    setTimeout(() => { document.getElementById('status').innerText = "Listo para escanear"; }, 3000);
+                })
+                .catch(err => {
+                    alert("Error de conexión: " + err);
+                    document.getElementById('status').innerText = "❌ Error al enviar";
+                });
+        }
+    </script>
+</body>
+</html>
