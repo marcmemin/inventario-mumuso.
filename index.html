@@ -207,34 +207,48 @@
         if (actual + valor >= 1) input.value = actual + valor;
     }
 
-function alternarCamara() {
+async function alternarCamara() {
     const div = document.getElementById('reader');
-    if (div.style.display === 'none' || !div.style.display) {
-        div.style.display = 'block';
-        
-        // Configuramos la librería para que sea agresiva con los códigos de barras
-        html5QrCode = new Html5Qrcode("reader", { 
-            verbose: false,
-            formatsToSupport: [ 
-                Html5QrcodeSupportedFormats.EAN_13, 
-                Html5QrcodeSupportedFormats.EAN_8, 
-                Html5QrcodeSupportedFormats.CODE_128 
-            ] 
-        });
+    
+    // Si la cámara ya está abierta, la cerramos
+    if (div.style.display === 'block') {
+        cerrarCamara();
+        return;
+    }
 
-        const width = window.innerWidth * 0.85; 
-        
-        html5QrCode.start(
-            { facingMode: "environment" }, 
-            { 
-                fps: 30,             // Más cuadros por segundo para iPhone
-                qrbox: { width: width, height: 180 }, // Caja más alargada para barras
+    div.style.display = 'block';
+    
+    // 1. Obtener todas las cámaras disponibles
+    try {
+        const devices = await Html5Qrcode.getCameras();
+        if (!devices || devices.length === 0) {
+            alert("No se encontraron cámaras.");
+            return;
+        }
+
+        // 2. Buscar una cámara que diga "back" o "trasera" o simplemente la última de la lista
+        let backCamera = devices.find(device => 
+            device.label.toLowerCase().includes('back') || 
+            device.label.toLowerCase().includes('trasera') ||
+            device.label.toLowerCase().includes('environment')
+        );
+
+        // Si no encuentra una con ese nombre, usamos la última (usualmente es la principal trasera)
+        const cameraId = backCamera ? backCamera.id : devices[devices.length - 1].id;
+
+        html5QrCode = new Html5Qrcode("reader");
+        const width = window.innerWidth * 0.85;
+
+        await html5QrCode.start(
+            cameraId, // Usamos el ID específico de la cámara trasera
+            {
+                fps: 30,
+                qrbox: { width: width, height: 180 },
                 aspectRatio: 1.0,
                 videoConstraints: {
                     focusMode: "continuous",
-                    whiteBalanceMode: "continuous",
-                    width: { min: 640, ideal: 1280, max: 1920 }, // Forzamos HD
-                    height: { min: 480, ideal: 720, max: 1080 }
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
                 }
             },
             (text) => {
@@ -243,12 +257,19 @@ function alternarCamara() {
                 cerrarCamara();
                 if (navigator.vibrate) navigator.vibrate(100);
             }
-        ).catch(err => {
-            console.error(err);
-            alert("Error: Asegúrate de dar permiso a la cámara.");
-        });
-    } else {
-        cerrarCamara();
+        );
+    } catch (err) {
+        console.error(err);
+        // Si falla el método por ID, intentamos el método estándar como último recurso
+        try {
+            await html5QrCode.start({ facingMode: "environment" }, { fps: 20, qrbox: { width: 250, height: 150 } }, (text) => {
+                document.getElementById('lector').value = text;
+                buscar();
+                cerrarCamara();
+            });
+        } catch (e) {
+            alert("Error al encender cámara trasera: " + e);
+        }
     }
 }
 
